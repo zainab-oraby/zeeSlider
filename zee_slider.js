@@ -24,7 +24,8 @@
       autoPlay: true,
       pauseDuration: 1,
       customClass: "",
-      sliderDirection: "left-to-right"  // "right-to-left"
+      sliderDirection: "left-to-right",  // "right-to-left"
+      responsive: true
     }
 
     // Create options by extending defaults with the passed in arugments
