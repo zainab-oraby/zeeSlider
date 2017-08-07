@@ -24,7 +24,7 @@
       autoPlay: true,
       pauseDuration: 1,
       customClass: "",
-      direction: "left-to-right"  // "right-to-left"
+      sliderDirection: "left-to-right"  // "right-to-left"
     }
 
     // Create options by extending defaults with the passed in arugments
@@ -69,7 +69,7 @@
 
   function buildOut() {
 
-    var contentHolder,
+    var sliderHolder,
         docFrag,
         imgsWrapper = document.querySelector(".zeeSlider"),
         imgsList = imgsWrapper.querySelectorAll('img');
@@ -80,15 +80,27 @@
     // Create a DocumentFragment to build with
     docFrag = document.createDocumentFragment();
 
+    // Create sliderHolder div
+    sliderHolder = document.createElement("div");
+    sliderHolder.className = 'zeeSlider_holder';
+
+    // set sliderDirection
+    if ( this.options.sliderDirection === 'left-to-right' ) {
+      sliderHolder.style.direction = 'ltr';
+    } else if ( this.options.sliderDirection === 'right-to-left' ) {
+      sliderHolder.style.direction = 'rtl';
+    } else {
+      sliderHolder.style.direction = '';
+    }
+
     // Create Slider
     this.slider = document.querySelector(".zeeSlider");
     this.slider.className = "zeeSlider" + this.options.className;
-    this.slider.style.direction = this.options.direction;
     this.slider.style.overflow = 'hidden';
     this.slider.style.height = getImageDimensions(imgsList[0]) + 'px';
 
-    // Append slider to DocumentFragment
-    docFrag.appendChild(this.slider);
+    // Append slider to sliderHolder before appending arrows
+    sliderHolder.appendChild(this.slider);
 
     // if showArrows option is true
     if (this.options.showArrows === true) {
@@ -98,8 +110,8 @@
       this.previousButton = document.createElement("button");
       this.previousButton.className = "previous-image-button";
       this.previousButton.innerHTML = "Previous";
-      docFrag.appendChild(this.previousButton);
-      docFrag.appendChild(this.nextButton);
+      sliderHolder.appendChild(this.previousButton);
+      sliderHolder.appendChild(this.nextButton);
     }
 
     // if showBullets option is true
@@ -117,10 +129,17 @@
         imgsList[i].style.margin = '0 auto';
         imgsList[i].style.display = ( i === 0 ) ? 'block' : 'none';
       }
-      docFrag.appendChild(this.bulletsContainer);
+      sliderHolder.appendChild(this.bulletsContainer);
     }
 
-    this.currentImgIndex = parseInt(this.currentImage.dataset.imgIndex);
+    // if customClass option has value append it to zeeSlider_holder
+    if ( this.options.customClass !== "" ) {
+      sliderHolder.className += (' ' +this.options.customClass);
+    }
+
+    // Append sliderHolder to docFrag
+    docFrag.appendChild(sliderHolder);
+    this.currentImgIndex = parseInt(this.currentImage.dataset.imgIndex); // data name converted to camelCase
 
     // Append DocumentFragment to body
     document.body.appendChild(docFrag);
@@ -169,13 +188,13 @@
     return imageHeight;
   }
 
-  function extendDefaults(source, properties) {
+  function extendDefaults(source, externalProperties) {
     var property;
-    for (property in properties) {
+    for (property in externalProperties) {
       if (source.hasOwnProperty(property)) {
-        source[property] = properties[property];
+        source[property] = externalProperties[property];
       } else {
-        console.log('mesh mawgood')
+        console.log( property + ' is not an option in zeeSlider.' )
       }
     }
     return source;
@@ -198,7 +217,10 @@
 }());
 
 var mySlider = new zeeSlider({
-  
+  customClass: 'a_custom_class another_custom_class',
+  sliderDirection: 'right-to-left',
+  autoPlay: false,
+  dummy_option: 'opt_value'
 });
 
 mySlider.open();
