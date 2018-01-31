@@ -56,6 +56,9 @@
     if (this.options.autoPlay === true) {
       initializeAutoPlay.call(this);
     }
+    if (this.options.showBullets === true) {
+      initializeBulletsLinks.call(this);
+    }
   }
 
   // Private Methods
@@ -121,9 +124,9 @@
       this.bulletsContainer.className = "zeeSlider-bullets-container";
       for (i=0; i < this.imagesCount; i++) {
         if ( i === 0 ) {
-          this.bulletsContainer.innerHTML +=  "<span class='active bullet_"+ i +"'>o</span>";
+          this.bulletsContainer.innerHTML +=  "<span class='active' data-bullet-index='"+ i +"'>o</span>";
         } else {
-          this.bulletsContainer.innerHTML +=  "<span class='bullet_"+ i +"'>o</span>";
+          this.bulletsContainer.innerHTML +=  "<span class='' data-bullet-index='"+ i +"'>o</span>";
         };
         imgsList[i].className = "img_" + i;
         imgsList[i].setAttribute('data-img-index', i);
@@ -168,6 +171,26 @@
     }
   }
 
+  function initializeBulletsLinks() {
+    var _ = this,
+        selectAllBullets = this.bulletsContainer.querySelectorAll('span');
+    [].forEach.call(selectAllBullets, function(elem) {
+      elem.addEventListener('click', function() {
+        _.currentImage.style.display = 'none';
+        [].forEach.call(selectAllBullets, function(elem) {
+          if (elem.classList.contains('active')) {
+            elem.classList.remove('active');
+          }
+        });
+        clickedBulletIndex = parseInt(elem.dataset.bulletIndex);
+        clickedBullet = _.bulletsContainer.querySelector('[data-bullet-index="' + clickedBulletIndex + '"]');
+        clickedBullet.className += 'active';
+        _.currentImage = _.slider.querySelector('[data-img-index="' + clickedBulletIndex + '"]');
+        playImageAnimation(clickedBulletIndex);
+      })
+    });
+  }
+
   function updateActiveBullet() {
     var selectAllBullets = this.bulletsContainer.querySelectorAll('span');
     [].forEach.call(selectAllBullets, function(elem) {
@@ -175,13 +198,18 @@
         elem.classList.remove('active');
       }
     });
-    this.currentBullet = this.bulletsContainer.querySelector('span.bullet_' + this.currentImgIndex);
+    this.currentBullet = this.bulletsContainer.querySelector('[data-bullet-index="' + this.currentImgIndex + '"]');
     this.currentBullet.className += ' active';
   }
 
-  function playImageAnimation() {
-    this.currentImage = document.querySelector('[data-img-index="' + this.currentImgIndex + '"]');
-    this.currentImage.style.display = 'block';
+  function playImageAnimation( imageIndex ) {
+    if ( typeof imageIndex !== 'undefined' ) {
+      this.currentImage = document.querySelector('[data-img-index="' + imageIndex + '"]');
+      this.currentImage.style.display = 'block';
+    } else {
+      this.currentImage = document.querySelector('[data-img-index="' + this.currentImgIndex + '"]');
+      this.currentImage.style.display = 'block';
+    }
   }
 
   function getImageDimensions(image) {
@@ -219,8 +247,9 @@
 
 var mySlider = new zeeSlider({
   customClass: 'a_custom_class another_custom_class',
-  sliderDirection: 'right-to-left',
+  sliderDirection: 'left-to-right',
   autoPlay: false,
+  pauseDuration: 1,
   dummy_option: 'opt_value'
 });
 
